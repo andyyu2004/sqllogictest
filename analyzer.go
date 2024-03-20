@@ -16,11 +16,12 @@ package logictest
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/andyyu2004/sqllogictest/parser"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
-	"os"
-	"strings"
 )
 
 var statementPrefixes = []string{
@@ -109,7 +110,7 @@ func analyzeStatementsFromTestFile(harness Harness, testFilepath string, stateme
 	}
 
 	for _, record := range testRecords {
-		if record.ShouldExecuteForEngine("mysql") == false {
+		if !record.ShouldExecuteForEngine("mysql") {
 			continue
 		}
 

@@ -14,6 +14,8 @@
 
 package logictest
 
+import "context"
+
 // A Harness runs the queries in sqllogictest tests on an underlying SQL engine.
 type Harness interface {
 	// EngineStr returns the engine identifier string, used to skip tests that aren't supported on some engines. Valid
@@ -27,7 +29,7 @@ type Harness interface {
 
 	// ExecuteStatement executes a DDL / insert / update statement on the underlying engine and returns any error. Some
 	// tests expect errors. Any non-nil error satisfies a test that expects an error.
-	ExecuteStatement(statement string) error
+	ExecuteStatement(ctx context.Context, statement string) error
 
 	// ExecuteQuery executes the query given and returns the results in the following format:
 	// schema: a schema string for the schema of the result set, with one letter per column:
@@ -39,7 +41,7 @@ type Harness interface {
 	// are rendered as if by printf("%.3f"). NULL values are rendered as "NULL".
 	// err: queries are never expected to return errors, so any error returned is counted as a failure.
 	// For more information, see: https://www.sqlite.org/sqllogictest/doc/trunk/about.wiki
-	ExecuteQuery(statement string) (schema string, results []string, err error)
+	ExecuteQuery(ctx context.Context, statement string) (schema string, results []string, err error)
 
 	// GetTimeout returns timeout defined in the harness. The value is in seconds.
 	GetTimeout() int64

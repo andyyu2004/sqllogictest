@@ -226,3 +226,4 @@ func (r *Record) Label() string {
 func (r *Record) HashThreshold() int {
 	return r.hashThreshold
 }
+

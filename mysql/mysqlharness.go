@@ -15,11 +15,13 @@
 package mysql
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
-	"github.com/andyyu2004/sqllogictest"
-	_ "github.com/go-sql-driver/mysql"
 	"strings"
+
+	logictest "github.com/andyyu2004/sqllogictest"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // sqllogictest harness for MySQL databases.
@@ -55,14 +57,14 @@ func (h *MysqlHarness) Init() error {
 }
 
 // See Harness.ExecuteStatement
-func (h *MysqlHarness) ExecuteStatement(statement string) error {
-	_, err := h.db.Exec(statement)
+func (h *MysqlHarness) ExecuteStatement(ctx context.Context, statement string) error {
+	_, err := h.db.ExecContext(ctx, statement)
 	return err
 }
 
 // See Harness.ExecuteQuery
-func (h *MysqlHarness) ExecuteQuery(statement string) (schema string, results []string, err error) {
-	rows, err := h.db.Query(statement)
+func (h *MysqlHarness) ExecuteQuery(ctx context.Context, statement string) (schema string, results []string, err error) {
+	rows, err := h.db.QueryContext(ctx, statement)
 	if err != nil {
 		return "", nil, err
 	}
@@ -220,7 +222,7 @@ func columns(rows *sql.Rows) (string, []interface{}, error) {
 			columns = append(columns, &colVal)
 			sb.WriteString("I")
 		default:
-			return "", nil, fmt.Errorf("Unhandled type %s", columnType.DatabaseTypeName())
+			return "", nil, fmt.Errorf("unhandled type %s", columnType.DatabaseTypeName())
 		}
 	}
 

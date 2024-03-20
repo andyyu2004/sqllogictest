@@ -381,7 +381,7 @@ func execute(ctx context.Context, harness Harness, record *parser.Record) (schem
 
 	switch record.Type() {
 	case parser.Statement:
-		err := harness.ExecuteStatement(record.Query())
+		err := harness.ExecuteStatement(ctx, record.Query())
 
 		if record.ExpectError() {
 			if err == nil {
@@ -396,7 +396,7 @@ func execute(ctx context.Context, harness Harness, record *parser.Record) (schem
 		logResult(ctx, Ok, "")
 		return "", nil, true, nil
 	case parser.Query:
-		schemaStr, results, err := harness.ExecuteQuery(record.Query())
+		schemaStr, results, err := harness.ExecuteQuery(ctx, record.Query())
 		if err != nil {
 			logResult(ctx, NotOk, "Unexpected error %v", err)
 			return "", nil, true, err
@@ -581,7 +581,7 @@ func logDidNotRun() {
 func logMessagePrefix() string {
 	return fmt.Sprintf("%s %d %s:%d: %s",
 		time.Now().Format(time.RFC3339Nano),
-		time.Now().Sub(startTime).Milliseconds(),
+		time.Since(startTime).Milliseconds(),
 		testFilePath(currTestFile),
 		currRecord.LineNum(),
 		truncateQuery(currRecord.Query()))

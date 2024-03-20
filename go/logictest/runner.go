@@ -33,12 +33,16 @@ import (
 
 const defaultTimeout = time.Minute * 20
 
-var currTestFile string
-var currRecord *parser.Record
-var _, TruncateQueriesInLog = os.LookupEnv("SQLLOGICTEST_TRUNCATE_QUERIES")
+var (
+	currTestFile            string
+	currRecord              *parser.Record
+	_, TruncateQueriesInLog = os.LookupEnv("SQLLOGICTEST_TRUNCATE_QUERIES")
+)
 
-var startTime time.Time
-var testTimeoutError = errors.New("test in file timed out")
+var (
+	startTime        time.Time
+	testTimeoutError = errors.New("test in file timed out")
+)
 
 // GetCurrentFileName returns path to the test file that is currently executing.
 func GetCurrentFileName() string {
@@ -309,8 +313,8 @@ func runTestFile(harness Harness, file string) {
 		}
 
 		_, _, cont, err := executeRecord(lockCtx, cancel, harness, record)
-		if err == testTimeoutError {
-			dnr = true
+		if err != nil {
+			panic(err)
 		}
 
 		if !cont {

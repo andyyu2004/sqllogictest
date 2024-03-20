@@ -16,30 +16,39 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/dolthub/sqllogictest/go/logictest"
 	"github.com/dolthub/sqllogictest/go/logictest/mysql"
-	"os"
 )
 
 // MySQL test runner. Assumes a local MySQL with user sqllogictest, password "password". Adjust as necessary. Uses the
 // database "sqllogictest" for all operations, and will drop all tables in this database routinely.
 //
 // Sample setup commands:
-//       create database sqllogictest;
-//       create user sqllogictest@localhost identified by "password";
-//       grant all on sqllogictest.* to sqllogictest@localhost;
+//
+//	create database sqllogictest;
+//	create user sqllogictest@localhost identified by "password";
+//	grant all on sqllogictest.* to sqllogictest@localhost;
 //
 // Three modes, controlled by the first argument:
 // verify: Runs the test files given, outputting a pass / fail line to STDOUT for each test record. All arguments after
-//  the first are interpreted as test files or directories, which contain tests to be run. For directory arguments,
-//  directories are descended recursively, and all files with the .test extension will be added to the list of tests.
+//
+//	the first are interpreted as test files or directories, which contain tests to be run. For directory arguments,
+//	directories are descended recursively, and all files with the .test extension will be added to the list of tests.
+//
 // generate: Runs tests as verify does, but also produces a new version of each test file, named $testfile.generated,
-//  with the results of this test run.
+//
+//	with the results of this test run.
+//
 // filter: Runs the tests and produces a new version of each test file, just like generate, but any tests that
-//  fail are filtered out and not included in the generated files. This mode is useful when validating a new batch of
-//  fuzzed statements against a test oracle to filter out statements that don't execute correctly.
+//
+//	fail are filtered out and not included in the generated files. This mode is useful when validating a new batch of
+//	fuzzed statements against a test oracle to filter out statements that don't execute correctly.
+//
 // analyze: Analyzes all test statements in the specified test files and prints out a usage count for various statement
-//  types (e.g. SELECT, CREATE TABLE, CREATE INDEX).
+//
+//	types (e.g. SELECT, CREATE TABLE, CREATE INDEX).
 //
 // Usage: go run main.go (analyze|filter|generate|verify) testfile1 [testfile2 ...]
 func main() {

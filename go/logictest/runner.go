@@ -386,7 +386,7 @@ func execute(ctx context.Context, harness Harness, record *parser.Record) (schem
 		if record.ExpectError() {
 			if err == nil {
 				logResult(ctx, NotOk, "Expected error but didn't get one")
-				return "", nil, true, nil
+				return "", nil, true, errors.New("expected statement error but got no error")
 			}
 		} else if err != nil {
 			logResult(ctx, NotOk, "Unexpected error %v", err)

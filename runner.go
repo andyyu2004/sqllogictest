@@ -386,10 +386,11 @@ func execute(ctx context.Context, harness Harness, record *parser.Record) (schem
 		}
 
 		// Only log one error per record, so if schema comparison fails don't bother with result comparison
-		if verifySchema(ctx, record, schemaStr) {
-			verifyResults(ctx, record, schemaStr, results)
+		if err := verifySchema(ctx, record, schemaStr); err != nil {
+			return "", nil, true, err
 		}
-		return schemaStr, results, true, nil
+
+		return schemaStr, results, true, verifyResults(ctx, record, schemaStr, results)
 	case parser.Halt:
 		return "", nil, false, nil
 	default:
@@ -397,19 +398,19 @@ func execute(ctx context.Context, harness Harness, record *parser.Record) (schem
 	}
 }
 
-func verifyResults(ctx context.Context, record *parser.Record, schema string, results []string) {
+func verifyResults(ctx context.Context, record *parser.Record, schema string, results []string) error {
 	if len(results) != record.NumResults() {
 		logResult(ctx, NotOk, fmt.Sprintf("Incorrect number of results. Expected %v, got %v", record.NumResults(), len(results)))
-		return
+		return fmt.Errorf("incorrect number of results. expected %v, got %v", record.NumResults(), len(results))
 	}
 
 	results = normalizeResults(results, record.Schema())
 	results = record.SortResults(results)
 
 	if record.IsHashResult() {
-		verifyHash(ctx, record, results)
+		return verifyHash(ctx, record, results)
 	} else {
-		verifyRows(ctx, record, results)
+		return verifyRows(ctx, record, results)
 	}
 }
 
@@ -436,33 +437,37 @@ func normalizeResults(results []string, schema string) []string {
 
 // Verifies that the rows given exactly match the expected rows of the record, in the order given. Rows must have been
 // previously sorted according to the semantics of the record.
-func verifyRows(ctx context.Context, record *parser.Record, results []string) {
+func verifyRows(ctx context.Context, record *parser.Record, results []string) error {
 	for i := range record.Result() {
 		if record.Result()[i] != results[i] {
 			logResult(ctx, NotOk, "Incorrect result at position %d. Expected %v, got %v", i, record.Result()[i], results[i])
-			return
+			return fmt.Errorf("incorrect result at position %d, expected %v, got %v", i, record.Result()[i], results[i])
 		}
 	}
 
 	logResult(ctx, Ok, "")
+	return nil
 }
 
 // Verifies that the hash of the rows given exactly match the expected hash of the record given. Rows must have been
 // previously sorted according to the semantics of the record.
-func verifyHash(ctx context.Context, record *parser.Record, results []string) {
+func verifyHash(ctx context.Context, record *parser.Record, results []string) error {
 	results = record.SortResults(results)
 
 	computedHash, err := hashResults(results)
 	if err != nil {
 		logResult(ctx, NotOk, "Error hashing results: %v", err)
-		return
+		return fmt.Errorf("error hashing results: %v", err)
 	}
 
 	if record.HashResult() != computedHash {
 		logResult(ctx, NotOk, "Hash of results differ. Expected %v, got %v", record.HashResult(), computedHash)
+		return fmt.Errorf("hash of results differ, expected %v, got %v", record.HashResult(), computedHash)
 	} else {
 		logResult(ctx, Ok, "")
 	}
+
+	return nil
 }
 
 // Computes the md5 hash of the results given, using the same algorithm as the original sqllogictest C code.
@@ -477,14 +482,14 @@ func hashResults(results []string) (string, error) {
 }
 
 // Returns whether the schema given matches the record's expected schema, and logging an error if not.
-func verifySchema(ctx context.Context, record *parser.Record, schemaStr string) bool {
+func verifySchema(ctx context.Context, record *parser.Record, schemaStr string) error {
 	if schemaStr == record.Schema() {
-		return true
+		return nil
 	}
 
 	if len(schemaStr) != len(record.Schema()) {
 		logResult(ctx, NotOk, "Schemas differ. Expected %s, got %s", record.Schema(), schemaStr)
-		return false
+		return fmt.Errorf("schemas differs: expected %s, got %s", record.Schema(), schemaStr)
 	}
 
 	// MySQL has odd rules for when a result is a float v. an integer. Rather than try to replicate MySQL's type logic
@@ -492,10 +497,11 @@ func verifySchema(ctx context.Context, record *parser.Record, schemaStr string) 
 	for i, c := range record.Schema() {
 		if !compatibleSchemaTypes(c, rune(schemaStr[i])) {
 			logResult(ctx, NotOk, "Schemas differ. Expected %s, got %s", record.Schema(), schemaStr)
-			return false
+			return fmt.Errorf("schemas differ, expected %s, got %s", record.Schema(), schemaStr)
 		}
 	}
-	return true
+
+	return nil
 }
 
 func compatibleSchemaTypes(expected, actual rune) bool {

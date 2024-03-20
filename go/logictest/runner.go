@@ -28,7 +28,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dolthub/sqllogictest/go/logictest/parser"
+	"github.com/andyyu2004/sqllogictest/go/logictest/parser"
 )
 
 const defaultTimeout = time.Minute * 20

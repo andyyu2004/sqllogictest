@@ -1,4 +1,4 @@
-module github.com/dolthub/sqllogictest/go
+module github.com/andyyu2004/sqllogictest/go
 
 go 1.13
 

@@ -17,7 +17,7 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
-	"github.com/dolthub/sqllogictest/go/logictest"
+	"github.com/andyyu2004/sqllogictest/go/logictest"
 	_ "github.com/go-sql-driver/mysql"
 	"strings"
 )

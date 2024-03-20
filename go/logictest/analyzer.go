@@ -16,7 +16,7 @@ package logictest
 
 import (
 	"fmt"
-	"github.com/dolthub/sqllogictest/go/logictest/parser"
+	"github.com/andyyu2004/sqllogictest/go/logictest/parser"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"os"

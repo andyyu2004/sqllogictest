@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -355,22 +354,6 @@ func executeRecord(ctx context.Context, cancel context.CancelFunc, harness Harne
 }
 
 func execute(ctx context.Context, harness Harness, record *parser.Record) (schema string, results []string, cont bool, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			toLog := r
-			if str, ok := r.(string); ok {
-				// attempt to keep entries on one line
-				toLog = strings.ReplaceAll(str, "\n", " ")
-			} else if err, ok := r.(error); ok {
-				// attempt to keep entries on one line
-				toLog = strings.ReplaceAll(err.Error(), "\n", " ")
-			}
-			logResult(ctx, NotOk, "Caught panic: %v", toLog)
-			fmt.Println("stacktrace from panic: \n" + string(debug.Stack()))
-			cont = true
-		}
-	}()
-
 	if !record.ShouldExecuteForEngine(harness.EngineStr()) {
 		// Log a skip for queries and statements only, not other control records
 		if record.Type() == parser.Query || record.Type() == parser.Statement {

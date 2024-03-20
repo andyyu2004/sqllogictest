@@ -152,6 +152,8 @@ func parseRecord(scanner *LineScanner) (*Record, error) {
 				record.schema = fields[1]
 				if len(fields) > 2 {
 					record.sortMode = SortMode(fields[2])
+				} else {
+					record.sortMode = NoSort
 				}
 				if len(fields) > 3 {
 					record.label = fields[3]

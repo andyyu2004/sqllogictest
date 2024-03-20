@@ -441,7 +441,7 @@ func verifyRows(ctx context.Context, record *parser.Record, results []string) er
 	for i := range record.Result() {
 		if record.Result()[i] != results[i] {
 			logResult(ctx, NotOk, "Incorrect result at position %d. Expected %v, got %v", i, record.Result()[i], results[i])
-			return fmt.Errorf("incorrect result at position %d, expected %v, got %v", i, record.Result()[i], results[i])
+			return fmt.Errorf("incorrect result at position %d, expected `%v`, got `%v`", i, record.Result()[i], results[i])
 		}
 	}
 

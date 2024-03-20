@@ -211,7 +211,7 @@ func (r *Record) SortResults(results []string) []string {
 		sort.Strings(results)
 		return results
 	default:
-		panic(fmt.Sprintf("Uncrecognized sort mode %v", r.sortMode))
+		panic(fmt.Sprintf("unrecognized sort mode `%v`", r.sortMode))
 	}
 }
 
@@ -226,4 +226,3 @@ func (r *Record) Label() string {
 func (r *Record) HashThreshold() int {
 	return r.hashThreshold
 }
-

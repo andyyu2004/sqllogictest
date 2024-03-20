@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/andyyu2004/sqllogictest/go/logictest/parser"
+	"github.com/andyyu2004/sqllogictest/parser"
 )
 
 type ResultType int

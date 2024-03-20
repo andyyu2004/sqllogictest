@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/andyyu2004/sqllogictest/go/logictest"
-	"github.com/andyyu2004/sqllogictest/go/logictest/mysql"
+	"github.com/andyyu2004/sqllogictest"
+	"github.com/andyyu2004/sqllogictest/mysql"
 )
 
 // MySQL test runner. Assumes a local MySQL with user sqllogictest, password "password". Adjust as necessary. Uses the
